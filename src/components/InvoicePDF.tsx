@@ -1,0 +1,413 @@
+
+
+
+// import React from 'react';
+// import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
+
+// // --- Expanded TypeScript Interfaces ---
+// export interface InvoiceItem {
+//   id: string;
+//   productName: string;
+//   breed: string;
+//   qty: number;
+//   mfr: string;
+//   mrp: number;
+//   rate: number;
+//   exp: string;
+//   dis: number;
+//   gst: number;
+//   amount: number;
+// }
+
+// export interface InvoiceData {
+//   invoiceNo: string;
+//   date: string;
+//   dueDate: string;
+//   customerName: string;
+//   customerAddress: string;
+//   customerPhone: string;
+  
+//   // Fully Editable Vendor Details
+//   vendorName: string;
+//   vendorDesc: string;
+//   vendorAddress: string;
+//   vendorEmail: string;
+//   vendorGSTIN: string;
+//   vendorPhone: string;
+  
+//   // Fully Editable Bank Details
+//   bankName: string;
+//   branch: string;
+//   accountNo: string;
+//   ifsc: string;
+//   upiId: string;
+  
+//   // Payment Status
+//   paymentStatus: string; 
+//   amountPaid: number;
+  
+//   items: InvoiceItem[];
+//   subTotal: number;
+//   discount: number;
+//   gstAmount: number;
+//   grandTotal: number;
+//   totalQty: number;
+//   amountInWords: string;
+// }
+
+// const styles = StyleSheet.create({
+//   page: { padding: 25, fontSize: 8, fontFamily: 'Helvetica' },
+//   watermark: { position: 'absolute', top: '30%', left: '20%', width: '60%', opacity: 0.1, zIndex: -1 },
+//   mainContent: { flex: 1 }, // <--- ADD THIS LINE EXACTLY LIKE THIS
+//   header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
+//   logoSpace: { width: 50, height: 50 },
+//   vendorInfo: { textAlign: 'center', flex: 1 },
+//   vendorName: { fontSize: 14, fontWeight: 'bold', color: '#b91c1c' },
+//   vendorDesc: { fontSize: 9, marginBottom: 2 },
+//   gstTitle: { textAlign: 'center', fontSize: 10, fontWeight: 'bold', marginVertical: 4, textDecoration: 'underline' },
+//   row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 },
+//   bold: { fontWeight: 'bold' },
+  
+//   // Table Styles (Expanded)
+//   table: { width: '100%', borderWidth: 1, borderColor: '#000', marginBottom: 5 },
+//   tableHeader: { flexDirection: 'row', backgroundColor: '#f3f4f6', borderBottomWidth: 1, fontWeight: 'bold', paddingVertical: 4 },
+//   tableRow: { flexDirection: 'row', borderBottomWidth: 1, borderColor: '#eee', paddingVertical: 4 },
+//   colSn: { width: '4%', textAlign: 'center' },
+//   colProduct: { width: '25%', paddingLeft: 2 },
+//   colBreed: { width: '8%', textAlign: 'center' },
+//   colQty: { width: '6%', textAlign: 'center' },
+//   colMfr: { width: '8%', textAlign: 'center' },
+//   colMrp: { width: '8%', textAlign: 'right' },
+//   colRate: { width: '10%', textAlign: 'right' },
+//   colExp: { width: '9%', textAlign: 'center' },
+//   colDis: { width: '6%', textAlign: 'center' },
+//   colGst: { width: '6%', textAlign: 'center' },
+//   colAmount: { width: '10%', textAlign: 'right', paddingRight: 2 },
+  
+//   // Footer Styles
+//   footerGrid: { flexDirection: 'row', justifyContent: 'space-between', borderWidth: 1, borderColor: '#000', padding: 5 },
+//   bankDetails: { width: '45%' },
+//   totalsBox: { width: '35%' },
+//   totalRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 },
+//   signatureBlock: { marginTop: 25, flexDirection: 'row', justifyContent: 'space-between' },
+//   signLine: { borderTopWidth: 1, width: 120, textAlign: 'center', paddingTop: 2 }
+// });
+
+// const InvoicePDF: React.FC<{ data: InvoiceData }> = ({ data }) => (
+//   <Document>
+//     <Page size="A4" style={styles.page}>
+//       <Image src="/logo.png" style={styles.watermark} />
+
+//       {/* HEADER */}
+//       <View style={styles.header}>
+//         <Image src="/logo.png" style={styles.logoSpace} />
+//         <View style={styles.vendorInfo}>
+//           <Text style={styles.vendorName}>{data.vendorName}</Text>
+//           <Text style={styles.vendorDesc}>{data.vendorDesc}</Text>
+//           <Text>{data.vendorAddress}</Text>
+//           <Text>E-Mail: {data.vendorEmail}</Text>
+//         </View>
+//         <View style={{ width: 50 }} />
+//       </View>
+
+//       <Text style={styles.gstTitle}>GST INVOICE</Text>
+
+//       {/* META INFO */}
+//       <View style={styles.row}>
+//         <Text><Text style={styles.bold}>GSTIN:</Text> {data.vendorGSTIN}</Text>
+//         <Text><Text style={styles.bold}>Phone:</Text> {data.vendorPhone}</Text>
+//       </View>
+
+//       {/* BILL TO & INVOICE DETAILS */}
+//       <View style={[styles.row, { marginTop: 5, borderWidth: 1, padding: 4 }]}>
+//         <View style={{ width: '60%' }}>
+//           <Text style={styles.bold}>Billed To:</Text>
+//           <Text>{data.customerName}</Text>
+//           <Text>{data.customerAddress}</Text>
+//           <Text>PH.NO.: {data.customerPhone}</Text>
+//         </View>
+//         <View style={{ width: '40%' }}>
+//           <Text>Invoice No.: {data.invoiceNo}</Text>
+//           <Text>Date: {data.date}</Text>
+//           <Text>Due Date: {data.dueDate}</Text>
+//           <Text>Status: <Text style={styles.bold}>{data.paymentStatus}</Text></Text>
+//         </View>
+//       </View>
+
+//       {/* EXPANDED ITEMS TABLE */}
+//       <View style={styles.table}>
+//         <View style={styles.tableHeader}>
+//           <Text style={styles.colSn}>S.N</Text>
+//           <Text style={styles.colProduct}>PRODUCT NAME</Text>
+//           <Text style={styles.colBreed}>BREED</Text>
+//           <Text style={styles.colQty}>QTY</Text>
+//           <Text style={styles.colMfr}>MFR</Text>
+//           <Text style={styles.colMrp}>MRP</Text>
+//           <Text style={styles.colRate}>RATE</Text>
+//           <Text style={styles.colExp}>EXP</Text>
+//           <Text style={styles.colDis}>DIS</Text>
+//           <Text style={styles.colGst}>GST</Text>
+//           <Text style={styles.colAmount}>AMOUNT</Text>
+//         </View>
+
+//         {data.items.map((item, index) => (
+//           <View key={item.id} style={styles.tableRow}>
+//             <Text style={styles.colSn}>{index + 1}</Text>
+//             <Text style={styles.colProduct}>{item.productName}</Text>
+//             <Text style={styles.colBreed}>{item.breed}</Text>
+//             <Text style={styles.colQty}>{item.qty}</Text>
+//             <Text style={styles.colMfr}>{item.mfr}</Text>
+//             <Text style={styles.colMrp}>{item.mrp}</Text>
+//             <Text style={styles.colRate}>{item.rate.toFixed(2)}</Text>
+//             <Text style={styles.colExp}>{item.exp}</Text>
+//             <Text style={styles.colDis}>{item.dis}</Text>
+//             <Text style={styles.colGst}>{item.gst}</Text>
+//             <Text style={styles.colAmount}>{item.amount.toFixed(2)}</Text>
+//           </View>
+//         ))}
+//       </View>
+
+//       <Text style={{ marginBottom: 4, fontWeight: 'bold' }}>TOTAL QTY: {data.totalQty}</Text>
+//       <Text style={{ marginBottom: 4, fontStyle: 'italic' }}>Rs. {data.amountInWords} only</Text>
+      
+//       {/* FOOTER & BANK DETAILS */}
+//       <View style={styles.footerGrid}>
+//         <View style={styles.bankDetails}>
+//           <Text style={[styles.bold, { textDecoration: 'underline', marginBottom: 2 }]}>BANK DETAILS</Text>
+//           <Text>BANK: {data.bankName}</Text>
+//           <Text>BRANCH: {data.branch}</Text>
+//           <Text>A/C NO: {data.accountNo}</Text>
+//           <Text>IFSC CODE: {data.ifsc}</Text>
+//           <Text style={{ marginTop: 4 }}>PAY USING UPI QR:</Text>
+//           <Text>{data.upiId}</Text>
+//         </View>
+
+//         <View style={styles.totalsBox}>
+//           <View style={styles.totalRow}><Text>SUB TOTAL</Text><Text>{data.subTotal.toFixed(2)}</Text></View>
+//           <View style={styles.totalRow}><Text>DISCOUNT</Text><Text>{data.discount.toFixed(2)}</Text></View>
+//           <View style={styles.totalRow}><Text>GST AMOUNT</Text><Text>{data.gstAmount.toFixed(2)}</Text></View>
+//           <View style={[styles.totalRow, { borderTopWidth: 1, paddingTop: 2, fontWeight: 'bold' }]}>
+//             <Text>GRAND TOTAL</Text><Text>{data.grandTotal.toFixed(2)}</Text>
+//           </View>
+//           <View style={[styles.totalRow, { marginTop: 4 }]}><Text>AMOUNT PAID</Text><Text>{data.amountPaid.toFixed(2)}</Text></View>
+//           <View style={styles.totalRow}><Text>AMOUNT PAYABLE</Text><Text>{(data.grandTotal - data.amountPaid).toFixed(2)}</Text></View>
+//         </View>
+//       </View>
+
+//       {/* SIGNATURES */}
+//       <View style={styles.signatureBlock}>
+//         <View>
+//           <Text style={styles.signLine}>Customer Signature</Text>
+//         </View>
+//         <View>
+//           <Text style={styles.signLine}>For {data.vendorName}</Text>
+//           <Text style={{ textAlign: 'center' }}>Authorised Signatory</Text>
+//         </View>
+//       </View>
+//     </Page>
+//   </Document>
+// );
+
+// export default InvoicePDF;
+
+
+import React from 'react';
+import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
+
+export interface InvoiceItem {
+  id: string;
+  productName: string;
+  breed: string;
+  qty: number;
+  mfr: string;
+  mrp: number;
+  rate: number;
+  exp: string;
+  dis: number;
+  gst: number;
+  amount: number;
+}
+
+export interface InvoiceData {
+  invoiceNo: string;
+  date: string;
+  dueDate: string;
+  customerName: string;
+  customerAddress: string;
+  customerPhone: string;
+  vendorName: string;
+  vendorDesc: string;
+  vendorAddress: string;
+  vendorEmail: string;
+  vendorGSTIN: string;
+  vendorPhone: string;
+  bankName: string;
+  branch: string;
+  accountNo: string;
+  ifsc: string;
+  upiId: string;
+  paymentStatus: string; 
+  amountPaid: number;
+  items: InvoiceItem[];
+  subTotal: number;
+  discount: number;
+  gstAmount: number;
+  grandTotal: number;
+  totalQty: number;
+  amountInWords: string;
+}
+
+const styles = StyleSheet.create({
+  page: { padding: 25, fontSize: 8, fontFamily: 'Helvetica', display: 'flex', flexDirection: 'column' },
+  watermark: { position: 'absolute', top: '30%', left: '20%', width: '60%', opacity: 0.1, zIndex: -1 },
+  
+  // This is the spring that pushes the footer to the bottom
+  mainContent: { flex: 1 }, 
+  
+  header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
+  logoSpace: { width: 50, height: 50 },
+  vendorInfo: { textAlign: 'center', flex: 1 },
+  vendorName: { fontSize: 14, fontWeight: 'bold', color: '#b91c1c' },
+  vendorDesc: { fontSize: 9, marginBottom: 2 },
+  gstTitle: { textAlign: 'center', fontSize: 10, fontWeight: 'bold', marginVertical: 4, textDecoration: 'underline' },
+  row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 },
+  bold: { fontWeight: 'bold' },
+  
+  table: { width: '100%', borderWidth: 1, borderColor: '#000', marginBottom: 5 },
+  tableHeader: { flexDirection: 'row', backgroundColor: '#f3f4f6', borderBottomWidth: 1, fontWeight: 'bold', paddingVertical: 4 },
+  tableRow: { flexDirection: 'row', borderBottomWidth: 1, borderColor: '#eee', paddingVertical: 4 },
+  colSn: { width: '4%', textAlign: 'center' },
+  colProduct: { width: '25%', paddingLeft: 2 },
+  colBreed: { width: '8%', textAlign: 'center' },
+  colQty: { width: '6%', textAlign: 'center' },
+  colMfr: { width: '8%', textAlign: 'center' },
+  colMrp: { width: '8%', textAlign: 'right' },
+  colRate: { width: '10%', textAlign: 'right' },
+  colExp: { width: '9%', textAlign: 'center' },
+  colDis: { width: '6%', textAlign: 'center' },
+  colGst: { width: '6%', textAlign: 'center' },
+  colAmount: { width: '10%', textAlign: 'right', paddingRight: 2 },
+  
+  footerWrapper: { marginTop: 10 },
+  footerGrid: { flexDirection: 'row', justifyContent: 'space-between', borderWidth: 1, borderColor: '#000', padding: 5 },
+  bankDetails: { width: '45%' },
+  totalsBox: { width: '35%' },
+  totalRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 },
+  signatureBlock: { marginTop: 25, flexDirection: 'row', justifyContent: 'space-between' },
+  signLine: { borderTopWidth: 1, width: 120, textAlign: 'center', paddingTop: 2 }
+});
+
+const InvoicePDF: React.FC<{ data: InvoiceData }> = ({ data }) => (
+  <Document>
+    <Page size="A4" style={styles.page}>
+      <Image src="/logo.png" style={styles.watermark} />
+
+      <View style={styles.mainContent}>
+        <View style={styles.header}>
+          <Image src="/logo.png" style={styles.logoSpace} />
+          <View style={styles.vendorInfo}>
+            <Text style={styles.vendorName}>{data.vendorName}</Text>
+            <Text style={styles.vendorDesc}>{data.vendorDesc}</Text>
+            <Text>{data.vendorAddress}</Text>
+            <Text>E-Mail: {data.vendorEmail}</Text>
+          </View>
+          <View style={{ width: 50 }} />
+        </View>
+
+        <Text style={styles.gstTitle}>GST INVOICE</Text>
+
+        <View style={styles.row}>
+          <Text><Text style={styles.bold}>GSTIN:</Text> {data.vendorGSTIN}</Text>
+          <Text><Text style={styles.bold}>Phone:</Text> {data.vendorPhone}</Text>
+        </View>
+
+        <View style={[styles.row, { marginTop: 5, borderWidth: 1, padding: 4 }]}>
+          <View style={{ width: '60%' }}>
+            <Text style={styles.bold}>Billed To:</Text>
+            <Text>{data.customerName}</Text>
+            <Text>{data.customerAddress}</Text>
+            <Text>PH.NO.: {data.customerPhone}</Text>
+          </View>
+          <View style={{ width: '40%' }}>
+            <Text>Invoice No.: {data.invoiceNo}</Text>
+            <Text>Date: {data.date}</Text>
+            <Text>Due Date: {data.dueDate}</Text>
+            <Text>Status: <Text style={styles.bold}>{data.paymentStatus}</Text></Text>
+          </View>
+        </View>
+
+        <View style={styles.table}>
+          <View style={styles.tableHeader}>
+            <Text style={styles.colSn}>S.N</Text>
+            <Text style={styles.colProduct}>PRODUCT NAME</Text>
+            <Text style={styles.colBreed}>BREED</Text>
+            <Text style={styles.colQty}>QTY</Text>
+            <Text style={styles.colMfr}>MFR</Text>
+            <Text style={styles.colMrp}>MRP</Text>
+            <Text style={styles.colRate}>RATE</Text>
+            <Text style={styles.colExp}>EXP</Text>
+            <Text style={styles.colDis}>DIS</Text>
+            <Text style={styles.colGst}>GST</Text>
+            <Text style={styles.colAmount}>AMOUNT</Text>
+          </View>
+
+          {data.items.map((item, index) => (
+            <View key={item.id} style={styles.tableRow}>
+              <Text style={styles.colSn}>{index + 1}</Text>
+              <Text style={styles.colProduct}>{item.productName}</Text>
+              <Text style={styles.colBreed}>{item.breed}</Text>
+              <Text style={styles.colQty}>{item.qty}</Text>
+              <Text style={styles.colMfr}>{item.mfr}</Text>
+              <Text style={styles.colMrp}>{item.mrp}</Text>
+              <Text style={styles.colRate}>{item.rate.toFixed(2)}</Text>
+              <Text style={styles.colExp}>{item.exp}</Text>
+              <Text style={styles.colDis}>{item.dis}</Text>
+              <Text style={styles.colGst}>{item.gst}</Text>
+              <Text style={styles.colAmount}>{item.amount.toFixed(2)}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+
+      <View style={styles.footerWrapper}>
+        <Text style={{ marginBottom: 4, fontWeight: 'bold' }}>TOTAL QTY: {data.totalQty}</Text>
+        <Text style={{ marginBottom: 4, fontStyle: 'italic' }}>Rs. {data.amountInWords} only</Text>
+        
+        <View style={styles.footerGrid}>
+          <View style={styles.bankDetails}>
+            <Text style={[styles.bold, { textDecoration: 'underline', marginBottom: 2 }]}>BANK DETAILS</Text>
+            <Text>BANK: {data.bankName}</Text>
+            <Text>BRANCH: {data.branch}</Text>
+            <Text>A/C NO: {data.accountNo}</Text>
+            <Text>IFSC CODE: {data.ifsc}</Text>
+            <Text style={{ marginTop: 4 }}>PAY USING UPI QR:</Text>
+            <Text>{data.upiId}</Text>
+          </View>
+
+          <View style={styles.totalsBox}>
+            <View style={styles.totalRow}><Text>SUB TOTAL</Text><Text>{data.subTotal.toFixed(2)}</Text></View>
+            <View style={styles.totalRow}><Text>DISCOUNT</Text><Text>{data.discount.toFixed(2)}</Text></View>
+            <View style={styles.totalRow}><Text>GST AMOUNT</Text><Text>{data.gstAmount.toFixed(2)}</Text></View>
+            <View style={[styles.totalRow, { borderTopWidth: 1, paddingTop: 2, fontWeight: 'bold' }]}>
+              <Text>GRAND TOTAL</Text><Text>{data.grandTotal.toFixed(2)}</Text>
+            </View>
+            <View style={[styles.totalRow, { marginTop: 4 }]}><Text>AMOUNT PAID</Text><Text>{data.amountPaid.toFixed(2)}</Text></View>
+            <View style={styles.totalRow}><Text>AMOUNT PAYABLE</Text><Text>{(data.grandTotal - data.amountPaid).toFixed(2)}</Text></View>
+          </View>
+        </View>
+
+        <View style={styles.signatureBlock}>
+          <View>
+            <Text style={styles.signLine}>Customer Signature</Text>
+          </View>
+          <View>
+            <Text style={styles.signLine}>For {data.vendorName}</Text>
+            <Text style={{ textAlign: 'center' }}>Authorised Signatory</Text>
+          </View>
+        </View>
+      </View>
+    </Page>
+  </Document>
+);
+
+export default InvoicePDF;
