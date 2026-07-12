@@ -33,7 +33,6 @@
 //   accountNo: string;
 //   ifsc: string;
 //   upiId: string;
-//   paymentStatus: string; 
 //   items: InvoiceItem[];
 //   subTotal: number;
 //   discount: number;
@@ -43,13 +42,21 @@
 //   amountInWords: string;
 // }
 
+// const formatPDFDate = (dateStr: string) => {
+//   if (!dateStr) return '';
+//   const [year, month, day] = dateStr.split('-');
+//   if (!year || !month || !day) return dateStr;
+//   return `${day}-${month}-${year}`;
+// };
+
 // const styles = StyleSheet.create({
-//   // paddingBottom: 220 reserves the space at the bottom of the page
 //   page: { padding: 25, paddingBottom: 220, fontSize: 8, fontFamily: 'Helvetica' },
 //   watermark: { position: 'absolute', top: '30%', left: '20%', width: '60%', opacity: 0.1, zIndex: -1 },
   
 //   header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
-//   logoSpace: { width: 50, height: 50 },
+//   // Logo slightly enlarged and shifted to the right
+//   logoSpace: { width: 110, height: 110, marginLeft: 45 }, 
+  
 //   vendorInfo: { textAlign: 'center', flex: 1 },
 //   vendorName: { fontSize: 14, fontWeight: 'bold', color: '#b91c1c' },
 //   vendorDesc: { fontSize: 9, marginBottom: 1 },
@@ -75,6 +82,10 @@
 //   absoluteFooter: { position: 'absolute', bottom: 25, left: 25, right: 25 },
 //   footerGrid: { flexDirection: 'row', justifyContent: 'space-between', borderWidth: 1, borderColor: '#000', padding: 5, marginTop: 10 },
 //   bankDetails: { width: '50%' },
+  
+//   qrRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+//   qrImage: { width: 45, height: 45, marginLeft: 15 },
+  
 //   totalsBox: { width: '35%' },
 //   totalRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 },
 //   signatureBlock: { marginTop: 25, flexDirection: 'row', justifyContent: 'space-between' },
@@ -95,7 +106,7 @@
 //           <Text>{data.vendorAddress}</Text>
 //           <Text>E-Mail: {data.vendorEmail}</Text>
 //         </View>
-//         <View style={{ width: 50 }} />
+//         <View style={{ width: 110 }} /> 
 //       </View>
 
 //       <Text style={styles.gstTitle}>GST INVOICE</Text>
@@ -115,8 +126,7 @@
 //         </View>
 //         <View style={{ width: '40%' }}>
 //           <Text>Invoice No.: {data.invoiceNo}</Text>
-//           <Text>Date: {data.date}</Text>
-//           <Text>Status: <Text style={styles.bold}>{data.paymentStatus}</Text></Text>
+//           <Text>Date: {formatPDFDate(data.date)}</Text>
 //         </View>
 //       </View>
 
@@ -142,7 +152,7 @@
 //             <Text style={styles.colQty}>{item.qty || 0}</Text>
 //             <Text style={styles.colSku}>{item.sku || 0}</Text>
 //             <Text style={styles.colRate}>{(item.ratePerKg || 0).toFixed(2)}</Text>
-//             <Text style={styles.colExp}>{item.exp}</Text>
+//             <Text style={styles.colExp}>{formatPDFDate(item.exp)}</Text>
 //             <Text style={styles.colDis}>{item.dis || 0}</Text>
 //             <Text style={styles.colGst}>{item.gst || 0}</Text>
 //             <Text style={styles.colAmount}>{(item.amount || 0).toFixed(2)}</Text>
@@ -150,9 +160,9 @@
 //         ))}
 //       </View>
 
-//       {/* FOOTER RENDER LOGIC: Only show Bank/Signatures/Totals on the last page */}
 //       <View style={styles.absoluteFooter} fixed>
-//         <View render={({ pageNumber, totalPages }) => {
+//         <View render={(props: any) => {
+//           const { pageNumber, totalPages } = props;
 //           if (pageNumber === totalPages) {
 //             return (
 //               <View>
@@ -166,8 +176,14 @@
 //                     <Text>BRANCH: {data.branch}</Text>
 //                     <Text>A/C NO: {data.accountNo}</Text>
 //                     <Text>IFSC CODE: {data.ifsc}</Text>
-//                     <Text style={{ marginTop: 4 }}>PAY USING UPI QR:</Text>
-//                     <Text>{data.upiId}</Text>
+                    
+//                     <View style={styles.qrRow}>
+//                       <View>
+//                         <Text style={styles.bold}>PAY USING UPI QR:</Text>
+//                         <Text>{data.upiId}</Text>
+//                       </View>
+//                       <Image src="/qr.png" style={styles.qrImage} />
+//                     </View>
 //                   </View>
 
 //                   <View style={styles.totalsBox}>
@@ -198,15 +214,13 @@
 //           }
 //         }} />
         
-//         <Text render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} style={{ textAlign: 'center', marginTop: 10, fontSize: 8, color: '#666' }} fixed />
+//         <Text render={(props: any) => `Page ${props.pageNumber} of ${props.totalPages}`} style={{ textAlign: 'center', marginTop: 10, fontSize: 8, color: '#666' }} fixed />
 //       </View>
-      
 //     </Page>
 //   </Document>
 // );
 
 // export default InvoicePDF;
-
 
 
 import React from 'react';
@@ -264,10 +278,12 @@ const styles = StyleSheet.create({
   page: { padding: 25, paddingBottom: 220, fontSize: 8, fontFamily: 'Helvetica' },
   watermark: { position: 'absolute', top: '30%', left: '20%', width: '60%', opacity: 0.1, zIndex: -1 },
   
-  header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
-  logoSpace: { width: 85, height: 85, marginLeft: 25 }, 
+  // FIX: Added alignItems and extra bottom margin to prevent overlap
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
+  // FIX: Shifted right and sized cleanly
+  logoSpace: { width: 95, height: 95, marginLeft: 20 }, 
   
-  vendorInfo: { textAlign: 'center', flex: 1 },
+  vendorInfo: { textAlign: 'center', flex: 1, paddingHorizontal: 10 },
   vendorName: { fontSize: 14, fontWeight: 'bold', color: '#b91c1c' },
   vendorDesc: { fontSize: 9, marginBottom: 1 },
   vendorTagline: { fontSize: 7, fontStyle: 'italic', marginBottom: 2, color: '#4b5563' },
@@ -316,7 +332,7 @@ const InvoicePDF: React.FC<{ data: InvoiceData }> = ({ data }) => (
           <Text>{data.vendorAddress}</Text>
           <Text>E-Mail: {data.vendorEmail}</Text>
         </View>
-        <View style={{ width: 85 }} /> 
+        <View style={{ width: 115 }} /> {/* Counter-balance block for perfect centering */}
       </View>
 
       <Text style={styles.gstTitle}>GST INVOICE</Text>
@@ -371,7 +387,6 @@ const InvoicePDF: React.FC<{ data: InvoiceData }> = ({ data }) => (
       </View>
 
       <View style={styles.absoluteFooter} fixed>
-        {/* We use (props: any) here to bypass the strict Next.js TypeScript check */}
         <View render={(props: any) => {
           const { pageNumber, totalPages } = props;
           if (pageNumber === totalPages) {
@@ -424,11 +439,8 @@ const InvoicePDF: React.FC<{ data: InvoiceData }> = ({ data }) => (
             );
           }
         }} />
-        
-        {/* We use (props: any) here as well */}
         <Text render={(props: any) => `Page ${props.pageNumber} of ${props.totalPages}`} style={{ textAlign: 'center', marginTop: 10, fontSize: 8, color: '#666' }} fixed />
       </View>
-      
     </Page>
   </Document>
 );
