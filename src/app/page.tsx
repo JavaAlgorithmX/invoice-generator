@@ -30,63 +30,43 @@ export default function InvoiceGenerator() {
   const [data, setData] = useState<InvoiceData>({
     invoiceNo: 'OFC000087',
     date: '24-06-2026',
-    
-    customerName: 'M/s SOURABH JI KEMIN',
-    customerAddress: '10-BIHAR',
-    customerPhone: '8709623528',
+    customerName: 'Name',
+    customerAddress: 'Address',
+    customerPhone: 'Mobile',
     customerGSTIN: '', 
-    
-    vendorName: 'CLOVERFIELD',
-    vendorDesc: 'CREAMERY & ORGANICS',
-    vendorTagline: 'The best nutritive solution provider',
+    vendorName: 'CLOVERFIELD CREAMERY & ORGANICS',
+    vendorDesc: 'FROM NATURE TO NUTRITION',
+    vendorTagline: '',
     vendorAddress: 'Raghopur, Near Karikh Asthan Salempur, Muzaffarpur Bihar PIN 842004',
-    vendorEmail: 'bihardairysolutions@gmail.com',
-    vendorGSTIN: '10AHWPT4906D2Z9',
-    vendorPhone: '+91-9065577100, 9527899402',
-    
+    vendorEmail: 'Ccorganics@gmail.com',
+    vendorGSTIN: 'NA',
+    vendorPhone: '+91',
     bankName: 'HDFC BANK',
-    branch: 'MASHRAK',
-    accountNo: '50200087214728',
-    ifsc: 'HDFC0009869',
-    upiId: 'vyapar.169126383165@hdfcbank',
-    
+    branch: 'ZERO MILE',
+    accountNo: '50100727604862',
+    ifsc: 'HDFC0009031',
+    upiId: '7004062912@axl',
     paymentStatus: 'Due',
-    
     items: [
       { id: '1', productName: 'KEMTRACE MAXIM DRY', company: 'KEMIN', qty: 5, sku: 25, ratePerKg: 100, exp: '-', dis: 0, gst: 0, amount: 12500 },
     ],
     subTotal: 0, discount: 0, gstAmount: 0, grandTotal: 0, totalQty: 0, amountInWords: ''
   });
 
-  // useEffect(() => {
-  //   const savedData = localStorage.getItem('cloverfieldInvoice');
-  //   if (savedData) {
-  //     try {
-  //       setData(JSON.parse(savedData));
-  //     } catch (err) {
-  //       console.error("Could not load invoice data");
-  //     }
-  //   }
-  //   setIsLoaded(true);
-  // }, []);
-
   useEffect(() => {
     const savedData = localStorage.getItem('cloverfieldInvoice');
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
-        
-        // Auto-fix old saved data so it doesn't crash
         if (parsedData.items) {
           parsedData.items = parsedData.items.map((item: any) => ({
             ...item,
-            ratePerKg: item.ratePerKg || item.rate || 0, // Fallback to old 'rate'
+            ratePerKg: item.ratePerKg || item.rate || 0,
             sku: item.sku || 0,
-            company: item.company || item.breed || '', // Fallback to old 'breed'
+            company: item.company || item.breed || '',
             amount: item.amount || 0
           }));
         }
-        
         setData(parsedData);
       } catch (err) {
         console.error("Could not load invoice data");
@@ -95,29 +75,80 @@ export default function InvoiceGenerator() {
     setIsLoaded(true);
   }, []);
 
+  // MASTER MATH CALCULATOR (Includes Dis% and GST%)
   useEffect(() => {
     if (!isLoaded) return;
-
-    let newSubTotal = 0;
-    let newTotalQty = 0;
-    data.items.forEach(item => {
-      newSubTotal += item.amount;
-      newTotalQty += Number(item.qty);
-    });
-    const newGrandTotal = newSubTotal - Number(data.discount) + Number(data.gstAmount);
     
-    localStorage.setItem('cloverfieldInvoice', JSON.stringify(data));
+    let newSubTotal = 0;
+    let newDiscountTotal = 0;
+    let newGstTotal = 0;
+    let newGrandTotal = 0;
+    let newTotalQty = 0;
 
-    if (data.subTotal !== newSubTotal || data.grandTotal !== newGrandTotal || data.totalQty !== newTotalQty) {
+    data.items.forEach(item => {
+      const qty = Number(item.qty) || 0;
+      const sku = Number(item.sku) || 0;
+      const rate = Number(item.ratePerKg) || 0;
+      const disPercent = Number(item.dis) || 0;
+      const gstPercent = Number(item.gst) || 0;
+
+      const baseAmount = qty * sku * rate;
+      const disAmount = baseAmount * (disPercent / 100);
+      const afterDiscount = baseAmount - disAmount;
+      const gstAmount = afterDiscount * (gstPercent / 100);
+      const finalAmount = afterDiscount + gstAmount;
+
+      newSubTotal += baseAmount;
+      newDiscountTotal += disAmount;
+      newGstTotal += gstAmount;
+      newGrandTotal += finalAmount;
+      newTotalQty += qty;
+    });
+
+    localStorage.setItem('cloverfieldInvoice', JSON.stringify(data));
+    
+    if (data.subTotal !== newSubTotal || data.grandTotal !== newGrandTotal || data.discount !== newDiscountTotal || data.gstAmount !== newGstTotal) {
       setData(prev => ({
         ...prev,
         subTotal: newSubTotal,
+        discount: newDiscountTotal,
+        gstAmount: newGstTotal,
         grandTotal: newGrandTotal,
         totalQty: newTotalQty,
         amountInWords: numberToWords(newGrandTotal)
       }));
     }
-  }, [data, isLoaded]);
+  }, [data.items, isLoaded]);
+
+  // NEW INVOICE BUTTON LOGIC
+  const handleGenerateNewInvoice = () => {
+    const currentNo = data.invoiceNo;
+    const prefixMatch = currentNo.match(/^[a-zA-Z]+/);
+    const numMatch = currentNo.match(/\d+$/);
+    
+    let nextNo = currentNo;
+    if (prefixMatch && numMatch) {
+      const prefix = prefixMatch[0];
+      const numStr = numMatch[0];
+      const nextNum = parseInt(numStr, 10) + 1;
+      const nextNumStr = nextNum.toString().padStart(numStr.length, '0');
+      nextNo = prefix + nextNumStr;
+    } else {
+      nextNo = currentNo + '-NEW';
+    }
+
+    if (confirm("Are you sure you want to clear all items and start a new invoice?")) {
+      setData({
+        ...data,
+        invoiceNo: nextNo,
+        customerName: '',
+        customerAddress: '',
+        customerPhone: '',
+        customerGSTIN: '',
+        items: [{ id: Date.now().toString(), productName: '', company: '', qty: 1, sku: 0, ratePerKg: 0, exp: '', dis: 0, gst: 0, amount: 0 }]
+      });
+    }
+  };
 
   const handleGeneralChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setData({ ...data, [e.target.name]: e.target.value });
@@ -127,14 +158,17 @@ export default function InvoiceGenerator() {
     const updatedItems = [...data.items];
     const item = { ...updatedItems[index], [field]: value };
     
-    // NEW MATH LOGIC: Amount = QTY * SKU(KG) * Rate/KG
-    if (field === 'qty' || field === 'sku' || field === 'ratePerKg') {
-      const qty = field === 'qty' ? Number(value) : item.qty;
-      const sku = field === 'sku' ? Number(value) : item.sku;
-      const ratePerKg = field === 'ratePerKg' ? Number(value) : item.ratePerKg;
-      
-      item.amount = qty * sku * ratePerKg;
-    }
+    // Live calculation for the specific row being edited
+    const qty = field === 'qty' ? Number(value) : Number(item.qty);
+    const sku = field === 'sku' ? Number(value) : Number(item.sku);
+    const ratePerKg = field === 'ratePerKg' ? Number(value) : Number(item.ratePerKg);
+    const dis = field === 'dis' ? Number(value) : Number(item.dis);
+    const gst = field === 'gst' ? Number(value) : Number(item.gst);
+    
+    const baseAmount = qty * sku * ratePerKg;
+    const afterDiscount = baseAmount - (baseAmount * (dis / 100));
+    item.amount = afterDiscount + (afterDiscount * (gst / 100));
+
     updatedItems[index] = item;
     setData({ ...data, items: updatedItems });
   };
@@ -150,7 +184,14 @@ export default function InvoiceGenerator() {
   return (
     <div className="max-w-screen-2xl mx-auto p-4 md:p-8 bg-slate-200 min-h-screen">
       <div className="bg-white p-6 rounded-xl shadow-2xl border-2 border-slate-300">
-        <h1 className="text-3xl font-extrabold mb-8 text-slate-900 border-b-4 border-slate-800 pb-2">Invoice Generator</h1>
+        
+        {/* NEW INVOICE BUTTON UI */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8 border-b-4 border-slate-800 pb-4 gap-4">
+           <h1 className="text-3xl font-extrabold text-slate-900">Invoice Generator</h1>
+           <button onClick={handleGenerateNewInvoice} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg border-2 border-red-800 transition transform hover:scale-105">
+             + Generate Next Invoice ({data.invoiceNo})
+           </button>
+        </div>
         
         <div className="mb-8 p-6 bg-blue-100 border-4 border-blue-300 rounded-xl">
           <h2 className="text-lg font-bold text-blue-900 uppercase mb-4 tracking-wider">Vendor Configuration</h2>
@@ -185,7 +226,6 @@ export default function InvoiceGenerator() {
           </div>
         </div>
 
-        {/* EXPANDED DYNAMIC TABLE WITH ALL EDITABLE FIELDS */}
         <div className="overflow-x-auto mb-4 border-4 border-slate-300 rounded-lg">
           <table className="w-full text-left border-collapse text-sm min-w-[1000px]">
             <thead>
@@ -238,7 +278,10 @@ export default function InvoiceGenerator() {
 
           <div className="w-full md:w-1/3 p-6 bg-slate-800 text-white rounded-xl shadow-inner border-4 border-slate-900 flex flex-col justify-end">
              <div className="flex justify-between mb-3 border-b border-slate-600 pb-2"><span className="text-slate-300 font-bold">Total Qty:</span> <span className="font-bold text-xl">{data.totalQty}</span></div>
-             <div className="flex justify-between mb-3 border-b border-slate-600 pb-2"><span className="text-slate-300 font-bold">Sub Total:</span> <span className="font-bold text-xl">{data.subTotal.toFixed(2)}</span></div>
+             <div className="flex justify-between mb-3 border-b border-slate-600 pb-2"><span className="text-slate-300 font-bold">Base Sub-Total:</span> <span className="font-bold text-lg text-slate-300">₹{data.subTotal.toFixed(2)}</span></div>
+             <div className="flex justify-between mb-3 border-b border-slate-600 pb-2"><span className="text-red-400 font-bold">Total Discount:</span> <span className="font-bold text-lg text-red-400">-₹{data.discount.toFixed(2)}</span></div>
+             <div className="flex justify-between mb-3 border-b border-slate-600 pb-2"><span className="text-blue-400 font-bold">Total GST:</span> <span className="font-bold text-lg text-blue-400">+₹{data.gstAmount.toFixed(2)}</span></div>
+             
              <div className="flex justify-between text-2xl font-black pt-4 mt-2">
                <span className="text-white">Grand Total:</span> <span className="text-green-400">₹{data.grandTotal.toFixed(2)}</span>
              </div>
