@@ -46,7 +46,7 @@ export default function InvoiceGenerator() {
     accountNo: '50100727604862',
     ifsc: 'HDFC0009031',
     upiId: '7004062912@axl',
-    paymentStatus: 'Due',
+    // paymentStatus: 'Due',
     items: [
       { id: '1', productName: 'KEMTRACE MAXIM DRY', company: 'KEMIN', qty: 5, sku: 25, ratePerKg: 100, exp: '-', dis: 0, gst: 0, amount: 12500 },
     ],
@@ -219,11 +219,11 @@ export default function InvoiceGenerator() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 p-6 bg-slate-100 border-4 border-slate-300 rounded-xl">
           <div><label className="block text-sm font-bold text-slate-700 mb-1">Invoice No</label><input type="text" name="invoiceNo" value={data.invoiceNo} onChange={handleGeneralChange} className={highVisInput} /></div>
           <div><label className="block text-sm font-bold text-slate-700 mb-1">Date</label><input type="text" name="date" value={data.date} onChange={handleGeneralChange} className={highVisInput} /></div>
-          <div><label className="block text-sm font-bold text-slate-700 mb-1">Payment Status</label>
+          {/* <div><label className="block text-sm font-bold text-slate-700 mb-1">Payment Status</label>
             <select name="paymentStatus" value={data.paymentStatus} onChange={handleGeneralChange} className={`${highVisInput} cursor-pointer`}>
               <option value="Due">Due</option><option value="Cash">Cash</option><option value="Online">Online</option>
             </select>
-          </div>
+          </div> */}
         </div>
 
         <div className="overflow-x-auto mb-4 border-4 border-slate-300 rounded-lg">
